@@ -7,6 +7,10 @@ import xlsxwriter # pip install xlsxwriter
 from datetime import datetime
 # LIBRERIA PARA CONVERTIR LA LATITUD Y LONGITUD A DIRECCION
 from geopy.geocoders import Nominatim
+# LIBRERIAS PARA DISEÑAR EL MAPA
+import folium # COMANDO PARA INSTALAR LA LIBRERIA : py -3.10 -m pip install folium
+from folium import plugins
+import webbrowser
 
 
 # ___________________CONEXION CON ARDUINO___________________
@@ -22,6 +26,19 @@ hoja.write(0,1,"LOCALIZACIÓN")
 cantRegistros = 1
 regisGuardados = 0
 row = 1
+
+# DISEÑO DEL MAPA
+origin = "Medellín"
+# CAPTURA DE COORDENADAS (LAT,LNG) DEL ORIGEN
+geolocalizador = Nominatim(user_agent="Prueba")
+locOrig = geolocalizador.geocode(origin)
+
+# LAT Y LONG | ORIGEN
+latOrig = locOrig.latitude
+longtOrig = locOrig.longitude
+
+# CREACION DEL MAPA
+mapa = folium.Map(location=[latOrig,longtOrig], zoom_start=8)
 
 while True:
     # BUSCAMOS ERRORES EN CASO DE DAR ERRORES DE EJECUCIÓN
@@ -52,6 +69,8 @@ while True:
             row += 1
             # IMPRIMIMOS LO QUE GUARDAMOS
             print(f"{lat} {longt}") #print(location.address)
+            # UBICACION DEL BARRENDERO EN EL MAPA
+            folium.Marker(location=[lat,longt], popup= "Entrada", icon=folium.Icon(color="blue", icon_color="white", icon='user')).add_to(mapa)
             
             # COMPARAMOS SI LOS REGISTROS GUARDADOS SON IGUAL A LOS REQUERIDOS
             if cantRegistros == regisGuardados:
@@ -61,3 +80,14 @@ while True:
     except:
         print("ERROR AL ENVIAR LOS DATOS DESDE EL PUERTO...")
         pass
+
+# CAPAS DEL MAPA
+folium.TileLayer('Stamen Terrain').add_to(mapa)
+folium.TileLayer('Cartodb Positron').add_to(mapa)
+folium.TileLayer('CartoDB dark_matter').add_to(mapa)
+folium.TileLayer('stamentoner').add_to(mapa)
+
+folium.LayerControl(position="topleft").add_to(mapa)
+
+mapa.save('Mapa de Ubicación.html')
+webbrowser.open('Mapa de Ubicación.html')

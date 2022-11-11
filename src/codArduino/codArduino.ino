@@ -45,7 +45,9 @@ void setup() {
   lcd.backlight();
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("CLAVE:"); 
+  lcd.print("CLAVE:");
+  lcd.setCursor(0,1);
+  lcd.print("Cerrado         ");
   limpiar();
   // MODULO GPS
   Serial.begin(115200);

@@ -1,6 +1,5 @@
 #include <LiquidCrystal_I2C.h> // Libreria para el manejo de la pantalla LCD.
 #include <Keypad.h> // Libreria para el manejo del teclado.
-#include <Servo.h> // Libreria para el manejo del servoMotor.
 // Permite trabajar con el hardware directamente del MODULO-GPS
 #include<SoftwareSerial.h>
 // Permite interpretar los datos enviados por el GPS(los datos son enviados en codigo NMEA -> National Marine Electronics Asociation)
@@ -13,6 +12,7 @@ char clave_maestra[5] = "1234"; // Almacena la contraseña a comparar.
 int indice; // indice del array
 int fallos = 0;
 int pinLed = 13;
+float flat, flon;
 
 // COMPONENTES:
 //____________________PANTALLA LCD____________________
@@ -33,11 +33,6 @@ byte columnsPins[COLUMNS] = {6,7,8,9};
 
 Keypad teclado = Keypad(makeKeymap(keys),rowsPins,columnsPins,ROWS,COLUMNS);
 
-// ____________________SERVO MOTOR____________________
-int servoPin = 10;
-// Objeto que me permite controlar el servo Motor
-Servo myServo;
-
 // ____________________MODULO GPS____________________
 // DECLARAMOS UN OBJETO DE TIPO SOFTWARE-SERIAL
 SoftwareSerial ss(12,11); // TX/RX
@@ -52,9 +47,6 @@ void setup() {
   lcd.setCursor(0,0);
   lcd.print("CLAVE:"); 
   limpiar();
-  // SERVO MOTOR
-  myServo.attach(servoPin);
-  myServo.write(150);
   // MODULO GPS
   Serial.begin(115200);
   // LE DECIMOS AL MODULO GPS QUE ME ENVIE LOS DATOS A LA VELOCIDAD DE 9600 baudios
@@ -84,6 +76,14 @@ void loop() {
     }
      indice = 0;
   }
+
+  if(ss.available()>0){
+    // VERIFICA LA CONVERCIÓN DE INFORMACIÓN DE NMEA A COORDENADAS POLARES LEIBLES(LAT,LNG)
+    if(gps.encode(ss.read())){
+      // VARIABLES (LAT,LON)
+      gps.f_get_position(&flat, &flon);
+    }
+  }
 }
 
 // ______Funcion limpiar______
@@ -99,13 +99,11 @@ void abrir(){
     estado = 1;
     lcd.setCursor(0,1);
     lcd.print("Abierto         ");
-    myServo.write(30);
     fallos = 0;
   }else{
     estado = 0;
     lcd.setCursor(0,1);
     lcd.print("Cerrado         ");
-    myServo.write(150);
   }
   limpiar();
   digitalWrite(pinLed,LOW);
@@ -129,16 +127,5 @@ void error(){
 // ______Funcion localizar______
 void localizar(){
   digitalWrite(pinLed,HIGH);
-  // EL BUCLE SE EJECUTA SIEMPRE QUE SE ENVIE INFORMACIÓN
-  while(ss.available()>0){
-    // VERIFICA LA CONVERCIÓN DE INFORMACIÓN DE NMEA A COORDENADAS POLARES LEIBLES(LAT,LNG)
-    if(gps.encode(ss.read())){
-      // VARIABLES (LAT,LON)
-      float flat, flon;
-      gps.f_get_position(&flat, &flon);
-      //Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-      //Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
-      Serial.println(String(flat,6) + "," + String(flon,6));
-    }
-  }
+  Serial.println(String(flat,6) + "," + String(flon,6));
 }

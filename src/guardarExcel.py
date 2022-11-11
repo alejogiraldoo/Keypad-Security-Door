@@ -51,7 +51,7 @@ while True:
                 column += 1
             row += 1
             # IMPRIMIMOS LO QUE GUARDAMOS
-            #print(f"{lat} {longt}") #print(location.address)
+            print(f"{lat} {longt}") #print(location.address)
             
             # COMPARAMOS SI LOS REGISTROS GUARDADOS SON IGUAL A LOS REQUERIDOS
             if cantRegistros == regisGuardados:
@@ -59,8 +59,5 @@ while True:
                 archivo.close()
                 break
     except:
-        #print("ERROR AL ENVIAR LOS DATOS DESDE EL PUERTO...")
+        print("ERROR AL ENVIAR LOS DATOS DESDE EL PUERTO...")
         pass
-
-
-

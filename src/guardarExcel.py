@@ -48,7 +48,7 @@ while True:
         # DECODIFICAMOS LA INFORMACIÓN DEL PUERTO
         cad = val.decode("ascii")
         pos = cad.index(",")
-        # LAT Y LONG | BARRENDERO
+        # LAT Y LONG | ENTRADA
         lat = cad[:pos]
         longt = cad[pos+1:]
         # REALIZAMOS UNA VERIFICACIÓN PARA VALIDAR QUE LAS COORDENADAS FUERON ENVIADAS COMPLETAS
@@ -74,7 +74,7 @@ while True:
             
             # COMPARAMOS SI LOS REGISTROS GUARDADOS SON IGUAL A LOS REQUERIDOS
             if cantRegistros == regisGuardados:
-                # GUARDAMOS LA CANTIDAD DE ARCHIVOS
+                # GUARDAMOS LA CANTIDAD DE REGISTROS
                 archivo.close()
                 break
     except:
